@@ -23,20 +23,19 @@ module.exports = function (app) {
       var initUnit = convertHandler.getUnit(input);
       var returnNum = convertHandler.convert(initNum, initUnit);
       var returnUnit = convertHandler.getReturnUnit(initUnit);
-      var toString = convertHandler.getString(initNum, initUnit, returnNum, returnUnit);
-      var obj = {};
+      var string = convertHandler.getString(initNum, initUnit, returnNum, returnUnit);
+      var obj = {initNum, initUnit, returnNum, returnUnit, string};
     
-      if(!input) {
-        console.log('invalid input');
-        res.send('invalid input');
+      if(initNum == 'invalid number' && initUnit == 'invalid unit') {
+        res.send('invalid number and unit')
+      } else if(initNum == 'invalid number') {
+        res.send('invalid number')
+      } else if(initUnit == 'invalid unit') {
+        res.send('invalid unit')
       } else {
-        initNum == 'invalid number' ? obj.string = 'invalid number' : obj.initNum = initNum;
-        initUnit == 'invalid unit' ? obj.string = 'invalid unit' : obj.initUnit = initUnit;
-        initUnit == 'invalid number' ? obj.string = 'invalid number' : obj.returnNum = returnNum;
-        initUnit == 'invalid unit' ? obj.string = 'invalid unit' : obj.returnUnit = returnUnit;
-        toString == 'invalid number and unit' ? obj.string = 'invalid number and unit' : obj.string = toString;
+        res.json(obj)
       }
-      res.json(obj)
+      
     });
     
 };
