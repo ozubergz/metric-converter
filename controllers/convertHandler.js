@@ -10,26 +10,30 @@ function ConvertHandler() {
   
   this.getNum = function(input) {
     let units = ['gal', 'l', 'lbs', 'kg', 'mi', 'km'];
-    let validFraction = /^([1-9]\d*(\.\d+)?)[/](\d+(\.\d+)?)$/
+    let validFraction = /^([1-9]\d*(\.\d+)?)[/](\d+(\.\d+)?)$/ //regex match fractions
+    let validDecimal = /^\d+(\.\d+)?$/ //regex match decimals
     let number = input.split(/([a-zA-z]+$)/); // split letters from numbers
     number = number.filter(Boolean) // remove empty or white space
     let result = number[0];
     
-    //if first index of split array is one of the units,
-    //return number with 1
-    if(units.includes(result)) { result = 1 } 
-    
+    //if a number is a valid decimal or number,
+    //return number
+    if(validDecimal.test(result)) {
+      result = Number(number[0])
     //if a number is a fraction, split two numbers between
     //division sign and return fraction
-    if(validFraction.test(result)) {  
-      let seperate = result.split('/');
-      let fraction = Number(seperate[0]) + "/" + Number(seperate[1]);
-      return fraction;
+    } else if(validFraction.test(result)) {
+        let seperate = result.split('/');
+        let fraction = Number(seperate[0]) / Number(seperate[1]);
+        result = fraction;
+    //if first index of split array is one of the units,
+    //return number with 1
+    } else if(units.includes(result)) {
+        result = 1
+    } else {
+        result = 'invalid number'
     }
     
-    //if number is not or input is invalid,
-    //return invalid number
-    if(isNaN(result) || !input) { result = 'invalid number' }; 
     return result;
   };
   
@@ -38,20 +42,22 @@ function ConvertHandler() {
     let letter = input.split(/([a-zA-z]+$)/); //split letters between numbers
     letter = letter.filter(Boolean); //remove empty or white space
     let inputUnit = letter[letter.length - 1];
-    let result = inputUnit.toLowerCase();
     
     //if no units matches units inside array,
     //return invalid unit
-    if(!units.includes(result)) { result = 'invalid unit' }
+    let unit = inputUnit.toLowerCase();
+    if(!units.includes(unit)) {
+      return 'invalid unit'
+    }
     
-    return result;
+    return inputUnit;
   };
   
   this.getReturnUnit = function(initUnit) {
     let result;
     let unit = initUnit.toLowerCase();
     switch(unit) {
-      case 'gal': result = 'l'; break;
+      case 'gal': result = 'L'; break;
       case 'l': result = 'gal'; break;
       case 'lbs': result = 'kg'; break;
       case 'kg': result = 'lbs'; break;
@@ -63,6 +69,7 @@ function ConvertHandler() {
   };
 
   this.spellOutUnit = function(unit) {
+    let units = unit.toLowerCase();
     let obj = {'gal': 'gallons',
                'l': 'liters',
                'lbs': 'pounds',
@@ -72,7 +79,7 @@ function ConvertHandler() {
         result;
     
     for(let props in obj) {
-      if(props == unit) {
+      if(props == units) {
         result = obj[props];
       }
     };
@@ -85,16 +92,9 @@ function ConvertHandler() {
     const galToL = 3.78541;
     const lbsToKg = 2.20462;
     const miToKm = 1.60934;
-    const validFraction = /^([1-9]\d*(\.\d+)?)[/](\d+(\.\d+)?)$/
     let num = initNum;
     
-    //if a number is a fraction, split two numbers between division sign and divide
-    //else if number is not a number return invalid numbers
-    if(validFraction.test(num)) {  
-      let seperate = num.split('/');
-      let fraction = Number(seperate[0]) / Number(seperate[1]);
-      num = fraction;
-    } else if(isNaN(num)) { return 'invalid number'}
+    // if(num === 'invalid number') {num = 'invalid number'}
     
     switch(initUnit) {
       case 'gal': num = num * galToL; break;
@@ -103,6 +103,7 @@ function ConvertHandler() {
       case 'kg': num = num * lbsToKg; break;
       case 'mi': num = num * miToKm; break;
       case 'km': num = num / miToKm; break;
+      // default: num = 'invalid number';
     }
     
     return num;
@@ -134,7 +135,6 @@ function ConvertHandler() {
                + this.spellOutUnit(returnUnit);
     }
     
-    console.log(result)
     return result;
   };
   
